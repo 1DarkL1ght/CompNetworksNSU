@@ -1,47 +1,69 @@
+import csv
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-import pandas as pd
-import time
-from bs4 import BeautifulSoup
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+
+'''
+# authorization code:
+sign_in_buttn = WebDriverWait(browser, 10).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, "._1tt78qz3.oco7hz0")))
+sign_in_buttn.click()
+print("Done!")
+
+login_element = browser.find_element(By.ID, "sign")
+login_element.send_keys('89134808098' + Keys.RETURN)
+
+password_element = browser.find_element(By.NAME, "password")
+password_element.send_keys('GeorgMax121270' + Keys.RETURN)
+
+time.sleep(10)
+
+sign_button = browser.find_element(By.ID, "signbutton")
+sign_button.click()
+
+time.sleep(10)'''
 
 
-# chrome_driver_path = "C:\\chromedriver-win64\\chromedriver.exe"
+def main():
+    pages = 5
+    vehicles_data = []
 
-option = Options()
-option.add_argument('--ignore-certificate-errors')
-option.add_argument('--ignore-ssl-errors')
+    option = webdriver.ChromeOptions()
+    option.add_argument('--ignore-certificate-errors')
+    option.add_argument('--ignore-ssl-errors')
 
-# service = Service(chrome_driver_path)
+    browser = webdriver.Chrome(options=option)
+    browser.get('https://auto.drom.ru/')
 
-browser = webdriver.Chrome(options=option)
-browser.get('https://auto.drom.ru/')
+    km_buttn = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.XPATH, "//a[contains(@href, 'drom.ru/auto/?distance=100')]")))
+    km_buttn.click()
 
-# sign_in_buttn = WebDriverWait(browser, 10).until(
-#     EC.presence_of_element_located((By.CSS_SELECTOR, "._1tt78qz3.oco7hz0")))
-# sign_in_buttn.click()
-# print("Done!")
+    for page in range(1, pages + 1):
+        browser.get(f'https://novosibirsk.drom.ru/auto/page{page}/?distance=100')
 
-# login_element = browser.find_element(By.NAME, "sign")
-# login_element.send_keys('89134808098' + Keys.RETURN)
+        vehicles = browser.find_elements(By.CSS_SELECTOR, "[data-ftid='bulls-list_bull']")
 
-# password_element = browser.find_element(By.NAME, "password")
-# password_element.send_keys('GeorgMax121270' + Keys.RETURN)
+        for vehicle in vehicles:
+            title = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_title']").text
+            description_items = vehicle.find_elements(By.XPATH, ".//*[@data-ftid='bull_description-item']")
+            description = " ".join([item.text for item in description_items])
+            price = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_price']").text
+            location = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_location']").text
+            date = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_date']").text
 
-# time.sleep(10)
+            vehicles_data.append([title, description, price, location, date])
 
-# sign_button = browser.find_element(By.ID, "signbutton")
-# sign_button.click()
+    with open('parsed_data.csv', 'w', encoding='utf-8', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, dialect='excel')
+        csv_writer.writerows(vehicles_data)
 
-# time.sleep(10)
+    print('Saved to csv file')
 
 
-vehicles = WebDriverWait(browser, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "css-1f68fiz.ea1vuk60")))
-print(vehicles)
-time.sleep(5)
+main()
+
