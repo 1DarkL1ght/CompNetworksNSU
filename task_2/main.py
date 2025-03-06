@@ -15,10 +15,10 @@ sign_in_buttn.click()
 print("Done!")
 
 login_element = browser.find_element(By.ID, "sign")
-login_element.send_keys('89134808098' + Keys.RETURN)
+login_element.send_keys('' + Keys.RETURN)
 
 password_element = browser.find_element(By.NAME, "password")
-password_element.send_keys('GeorgMax121270' + Keys.RETURN)
+password_element.send_keys('' + Keys.RETURN)
 
 time.sleep(10)
 
