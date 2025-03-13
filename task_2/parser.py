@@ -27,14 +27,14 @@ def parse_pages(pages):
         vehicles = browser.find_elements(By.CSS_SELECTOR, "[data-ftid='bulls-list_bull']")
 
         for vehicle in vehicles:
-            title = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_title']").text
+            name, year = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_title']").text.split(", ")
             description_items = vehicle.find_elements(By.XPATH, ".//*[@data-ftid='bull_description-item']")
             description = " ".join([item.text for item in description_items])
             price = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_price']").text
             location = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_location']").text
             date = vehicle.find_element(By.CSS_SELECTOR, "[data-ftid='bull_date']").text
 
-            vehicles_data.append([title, description, price, location, date])
+            vehicles_data.append([name, year, description, price, location, date])
 
     return vehicles_data
 
@@ -47,8 +47,7 @@ def save_to_csv(filename, vehicles_data):
     print('Saved to csv file')
 
 
-def main():
-    num_pages = 5
+def run_parser(num_pages=1, filename='parsed_data.csv'):
     filename = 'parsed_data.csv'
 
     option.add_argument('--ignore-certificate-errors')
@@ -59,4 +58,4 @@ def main():
     save_to_csv(filename, vehicles_data)
 
 
-main()
+# main()
