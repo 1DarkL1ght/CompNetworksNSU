@@ -2,20 +2,18 @@ import csv
 
 from fastapi import FastAPI
 import psycopg2
+import json
 
 from parser import *
 
 
 def connect_db():
     try:
-        # пытаемся подключиться к базе данных
-        conn = psycopg2.connect('postgresql://parser_user:GeorgMax121270@127.0.0.1:5432/parser')
+        conn = psycopg2.connect('postgresql://parser_user:comp_nets1470@127.0.0.1:5432/parser')
         return conn
         
     except:
-        # в случае сбоя подключения будет выведено сообщение в STDOUT
         raise RuntimeError('Can`t establish connection to database')
-        # print('Can`t establish connection to database')
 
 
 def create_table(conn):
@@ -41,6 +39,8 @@ def load_data(conn, path):
             cur.execute(
                 "INSERT INTO data (name, year, spec, mileage, city, date) VALUES (%s, %s, %s, %s, %s, %s)", row)
     conn.commit()
+    cur.close()
+    conn.close()
 
 
 
@@ -57,3 +57,20 @@ async def parse(url):
     else:
         return {'message': 'Wrong website!'}
 
+
+@app.get("/json/")
+async def get_json():
+    table_name = 'data'
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute(f'SELECT * FROM {table_name}')
+
+    columns = [desc[0] for desc in cur.description]
+    rows = cur.fetchall()
+    data = [dict(zip(columns, row)) for row in rows]
+
+    with open("output.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+    cur.close()
+    conn.close()
