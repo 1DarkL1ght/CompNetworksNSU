@@ -1,0 +1,2 @@
+docker stop api_container db_container nginx_container
+docker rm api_container db_container nginx_container

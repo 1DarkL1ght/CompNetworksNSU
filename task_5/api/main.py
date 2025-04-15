@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 import psycopg2
 import json
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
 
 def connect_db():
     try:
-        conn = psycopg2.connect('postgresql://parser_user:comp_nets1470@db:5432/parser')
+        conn = psycopg2.connect('postgresql://parser_user:comp_nets1470@db_container:5432/parser')
         return conn
         
     except:
@@ -51,3 +52,5 @@ async def get_urls():
         json.dump(data, f, ensure_ascii=False, indent=4)
     cur.close()
     conn.close()
+
+    return JSONResponse(content=data)
